@@ -25,8 +25,10 @@ let upload_file sock =
 
 	let fname = read_line () in 
 	let content = read_file fname in
+	let message = "UPLOAD"^";"^fname^";"^content in
+	(* printf "%s" message; *)
 
-	send sock content 0 (String.length content) []
+	send sock message 0 (String.length message) []
 ;;	
 
 let list_files sock = 1
