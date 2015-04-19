@@ -2,6 +2,7 @@ open Unix
 open Printf
 open Str
 
+
 (* read everything pending in the socket *) 
 (* from http://www.brool.com/index.php/ocaml-sockets *)
 let readall socket = 
@@ -20,13 +21,17 @@ let readall socket =
 (* fname: name of the file  *)
 (* fileContent: an ASCII string with the contents 
 of the file *)
+
 let upload_file fname fileContent =
-  (* printf "%s" fileContent; *)
-  let newFname = "server_files/"^fname in
-  let channel = open_out newFname in
-  fprintf channel "%s" fileContent;
-  close_out channel;
+  write_file "server_files/"^fname fileContent;  
 ;;
+
+(* handles a client file download *)
+(* fname: name of the file requested *)
+(* sock: socket to which file is sent *)
+
+let download_file fname sock =
+  ;;
 
 let run_server () = 
 (* create a socket for listening *)
@@ -50,8 +55,9 @@ let run_server () =
 (* go to the action function based on command *)
     match command with
     | "UPLOAD" ->
-       upload_file (List.nth args 1) (List.nth args 2)
-    | _ -> ()
+      upload_file (List.nth args 1) (List.nth args 2)
+    | "DOWNLOAD" -> 
+      download_file (List.nth args 1) sock      
     ;
 
     printf "Closing connection\n";

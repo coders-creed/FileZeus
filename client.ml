@@ -1,32 +1,23 @@
 open Unix
 open Printf
+open Str
 
+(* displays the menu *)
 let print_menu () = 
 	printf "
 			(1) Upload a file
 			(2) List files
-			(3) Get a file
+			(3) Download a file
 			(4) Remove a file
 		"
 	;;
-
-let read_file fname =
-  let channel = open_in fname in
-  let len = in_channel_length channel in
-  let str = String.create len in
-  really_input channel str 0 len;
-  close_in channel;
-  
-  (str)
-;;
 
 let upload_file sock = 
 	printf "Enter the name of the file you want to upload\n";
 
 	let fname = read_line () in 
-	let content = read_file fname in
+	let content = File.read_file fname in
 	let message = "UPLOAD"^";"^fname^";"^content in
-	(* printf "%s" message; *)
 
 	send sock message 0 (String.length message) []
 ;;	
@@ -34,7 +25,13 @@ let upload_file sock =
 let list_files sock = 1
 ;;
 
-let get_file sock = 1
+let download_file sock = 
+	printf "Enter the name of the file you want to download\n";
+
+	let fname = read_line () in 
+	let message = "DOWNLOAD"^";"^fname in
+
+	send sock message 0 (String.length message) []
 ;;
 
 let remove_file sock = 1
@@ -53,7 +50,7 @@ let run_client () =
 			match (int_of_string input) with
 			  1 -> upload_file
 			| 2 -> list_files
-			| 3 -> get_file
+			| 3 -> download_file
 			| 4 -> remove_file
 			| _ -> 
 				printf "Try again";
