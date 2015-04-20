@@ -8,9 +8,6 @@
 *.cmxs
 *.cmxa
 
-# ocamlbuild working directory
-_build/
-
 # ocamlbuild targets
 *.byte
 *.native
@@ -20,4 +17,4 @@ setup.data
 setup.log
 
 # runtime files
-server_files/
+server_files/*

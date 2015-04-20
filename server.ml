@@ -1,31 +1,49 @@
+(* in-built modules *)
 open Unix
 open Printf
 open Str
 
-let SERVER_FILE_DIR = "server_files/";;
+(* user modules *)
+include File
+include Socket
 
-
+let serverdir = "server_files/"
 
 (* handle a client file upload *)
 (* fname: name of the file  *)
 (* fileContent: an ASCII string with the contents 
 of the file *)
 
-let upload_file fname fileContent =
-  write_file SERVER_FILE_DIR^fname fileContent;  
+let full_name filename = serverdir^filename
+;;
+
+
+let upload_file fname content =
+  File.write_file (full_name fname) content; 
 ;;
 
 (* handles a client file download *)
 (* fname: name of the file requested *)
 (* sock: socket to which file is sent *)
 
-let download_file fname sock = 1
+let download_file fname sock = 
+  printf "download: %s\n%!" fname;
+  let content = File.read_file (full_name fname) in
+  send sock content 0 (String.length content) [];
+  printf "%s\n" content;
+  ()
 ;;
 
-let list_files sock = 1
+let list_files sock = ()
+  let file_list = Sys.readdir serverdir in
+  let message = String.concat ";" (Array.to_list (file_list ".")) in
+  
+  send sock message 0 (String.length message) [];
+  ()
 ;;
 
-let remove_file fname = 1
+let remove_file fname = 
+  Sys.remove (full_name fname)
 ;;
 
 let run_server () = 
@@ -40,10 +58,12 @@ let run_server () =
     printf "Waiting for connection ...\n%!";
 
     let (s, _) = accept sock in 
-    printf "Accepted a connection\n";
+    printf "Accepted a connection\n%!";
 
 (* get all data from the client *)
-    let str = readall s in 
+    let str = Socket.readall s in 
+    printf "Received: %s\n%!" str;
+
     let args = split (regexp ";") str in
     let command = List.nth args 0 in
 
@@ -57,12 +77,14 @@ let run_server () =
       list_files sock
     | "REMOVE" ->
       remove_file (List.nth args 1)
+    | _ -> ()
     ;
 
-    printf "Closing connection\n";
+    printf "Closing connection\n%!";
+    close sock;  
   done;
 
-  close sock;  
+  
   
 ;;
 

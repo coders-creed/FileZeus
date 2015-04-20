@@ -18,40 +18,60 @@ let print_menu () =
 	;;
 
 let upload_file sock = 
-	printf "Enter the name of the file you want to upload\n";
+	printf "Enter the name of the file you want to upload\n%!";
 
 	let fname = read_line () in 
 	let content = File.read_file fname in
 	let message = "UPLOAD"^";"^fname^";"^content in
 
-	send sock message 0 (String.length message) []
+	send sock message 0 (String.length message) [];
+	()
 ;;	
 
-let list_files sock = 1
+let list_files sock = 	
+	let message = "LIST" in
+	send sock message 0 (String.length message) [];
+
+	let list_str = Socket.readall sock in
+	printf "%s\n%!" list_str;
+	(* let file_list = split (regexp ";") list_str in *)
+	()
 ;;
 
 let download_file sock = 
-	printf "Enter the name of the file you want to download\n";
+	printf "Enter the name of the file you want to download\n%!";
 
 	let fname = read_line () in 
 	let message = "DOWNLOAD"^";"^fname in
 
 	send sock message 0 (String.length message) [];
+	printf "Sent request\n%!";
+
+	sleep 1;
 
 	let fileContent = Socket.readall sock in
 	File.write_file fname fileContent;
 
-	(1)
+	printf "Got file\n%!";
+	()
 ;;
 
-let remove_file sock = 1
+let remove_file sock = 
+	printf "Enter the name of the file you want to delete\n%!";
+
+	let fname = read_line () in 
+	let message = "REMOVE"^";"^fname in
+
+	send sock message 0 (String.length message) [];
+
+	()
 ;;
 
 let run_client () = 
 	while true do
 		let client_sock = socket PF_INET SOCK_STREAM 0 in
 		connect client_sock (ADDR_INET(inet_addr_of_string "127.0.0.1", 12345));
-		printf "Connected to server\n";
+		printf "Connected to server\n%!";
 
 		print_menu ();	
 
@@ -63,13 +83,13 @@ let run_client () =
 			| 3 -> download_file
 			| 4 -> remove_file
 			| _ -> 
-				printf "Try again";
+				printf "Try again%!";
 				exit 0;
-			in
+		in
 
 		action_func client_sock;
 
-		printf "Closing connection\n";
+		printf "Closing connection\n%!";
 		close client_sock;	
 	done;
 ;;

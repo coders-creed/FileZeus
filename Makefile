@@ -1,6 +1,8 @@
 LIBS=str.cmxa unix.cmxa
 
+# labels of dependencies
 COMMON=file socket
+# .cmx files of dependencies
 COMMONCMX=socket.cmx file.cmx
 
 all: client server
