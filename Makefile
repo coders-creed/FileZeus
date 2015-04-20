@@ -1,15 +1,21 @@
 LIBS=str.cmxa unix.cmxa
-COMMON=file.ml
+
+COMMON=file socket
+COMMONCMX=socket.cmx file.cmx
 
 all: client server
 
-server:	server.ml file
-	ocamlopt -o server $(LIBS) server.ml 
+server:	server.ml file socket
+	ocamlopt -o server $(LIBS) $(COMMONCMX) server.ml 
 
-client:	client.ml file
-	ocamlopt -o client $(LIBS) client.ml 
+client:	client.ml $(COMMON)
+	ocamlopt -o client $(LIBS) $(COMMONCMX) client.ml 
 
 file: 
 	ocamlopt -o file $(LIBS) file.ml 	
+
+socket:
+	ocamlopt -o socket $(LIBS) socket.ml 		
+
 clean:
 	rm *.cmi *.cmx 

@@ -1,6 +1,11 @@
+(* in-built modules *)
 open Unix
 open Printf
 open Str
+
+(* user modules *)
+include File
+include Socket
 
 (* displays the menu *)
 let print_menu () = 
@@ -31,7 +36,12 @@ let download_file sock =
 	let fname = read_line () in 
 	let message = "DOWNLOAD"^";"^fname in
 
-	send sock message 0 (String.length message) []
+	send sock message 0 (String.length message) [];
+
+	let fileContent = Socket.readall sock in
+	File.write_file fname fileContent;
+
+	(1)
 ;;
 
 let remove_file sock = 1

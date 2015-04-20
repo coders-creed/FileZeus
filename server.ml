@@ -2,20 +2,9 @@ open Unix
 open Printf
 open Str
 
+let SERVER_FILE_DIR = "server_files/";;
 
-(* read everything pending in the socket *) 
-(* from http://www.brool.com/index.php/ocaml-sockets *)
-let readall socket = 
-    let buffer = String.create 512 in
-    let rec _readall accum = 
-      try 
-        let count = (recv socket buffer 0 512 []) in
-          if count = 0 then accum else _readall ((String.sub buffer 0 count)::accum)
-        with _ -> 
-          accum
-    in
-      String.concat "" (List.rev (_readall []))
-  ;;
+
 
 (* handle a client file upload *)
 (* fname: name of the file  *)
@@ -23,15 +12,21 @@ let readall socket =
 of the file *)
 
 let upload_file fname fileContent =
-  write_file "server_files/"^fname fileContent;  
+  write_file SERVER_FILE_DIR^fname fileContent;  
 ;;
 
 (* handles a client file download *)
 (* fname: name of the file requested *)
 (* sock: socket to which file is sent *)
 
-let download_file fname sock =
-  ;;
+let download_file fname sock = 1
+;;
+
+let list_files sock = 1
+;;
+
+let remove_file fname = 1
+;;
 
 let run_server () = 
 (* create a socket for listening *)
@@ -58,6 +53,10 @@ let run_server () =
       upload_file (List.nth args 1) (List.nth args 2)
     | "DOWNLOAD" -> 
       download_file (List.nth args 1) sock      
+    | "LIST" ->
+      list_files sock
+    | "REMOVE" ->
+      remove_file (List.nth args 1)
     ;
 
     printf "Closing connection\n";
