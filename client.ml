@@ -32,8 +32,12 @@ let list_files sock =
 	let message = "LIST" in
 	send sock message 0 (String.length message) [];
 
+	(* wait for the server to send back the list *)
+	(* let recv_list = [sock] in 
+	Unix.select recv_list, [], [], 5.0; *)
+
 	let list_str = Socket.readall sock in
-	printf "%s\n%!" list_str;
+	printf "Received list: %s\n%!" list_str;
 	(* let file_list = split (regexp ";") list_str in *)
 	()
 ;;
@@ -47,12 +51,10 @@ let download_file sock =
 	send sock message 0 (String.length message) [];
 	printf "Sent request\n%!";
 
-	sleep 1;
-
 	let fileContent = Socket.readall sock in
 	File.write_file fname fileContent;
 
-	printf "Got file\n%!";
+	printf "Got file: %s\n%!" fileContent;
 	()
 ;;
 

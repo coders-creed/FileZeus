@@ -19,6 +19,8 @@ let full_name filename = serverdir^filename
 
 
 let upload_file fname content =
+  printf "Uploading file\n%!";
+
   File.write_file (full_name fname) content; 
 ;;
 
@@ -27,22 +29,28 @@ let upload_file fname content =
 (* sock: socket to which file is sent *)
 
 let download_file fname sock = 
-  printf "download: %s\n%!" fname;
+  printf "Downloading: %s\n%!" fname;
+
   let content = File.read_file (full_name fname) in
   send sock content 0 (String.length content) [];
-  printf "%s\n" content;
+  printf "%s\n%!" content;
   ()
 ;;
 
-let list_files sock = ()
+let list_files sock = 
+  printf "Listing files\n%!";
+
   let file_list = Sys.readdir serverdir in
-  let message = String.concat ";" (Array.to_list (file_list ".")) in
-  
+  let message = String.concat ";" (Array.to_list file_list) in
+  printf "%s\n%!" message;
+
   send sock message 0 (String.length message) [];
+  
   ()
 ;;
 
 let remove_file fname = 
+  printf "Removing file\n%!";
   Sys.remove (full_name fname)
 ;;
 
@@ -67,25 +75,27 @@ let run_server () =
     let args = split (regexp ";") str in
     let command = List.nth args 0 in
 
+    printf "Command: %s\n%!" command;
+
 (* go to the action function based on command *)
     match command with
     | "UPLOAD" ->
       upload_file (List.nth args 1) (List.nth args 2)
     | "DOWNLOAD" -> 
-      download_file (List.nth args 1) sock      
+      download_file (List.nth args 1) s    
     | "LIST" ->
-      list_files sock
+      list_files s
     | "REMOVE" ->
       remove_file (List.nth args 1)
     | _ -> ()
     ;
 
     printf "Closing connection\n%!";
+    shutdown sock SHUTDOWN_ALL;
     close sock;  
   done;
 
-  
-  
+  printf "Closing server\n%!";
 ;;
 
 let () = run_server()

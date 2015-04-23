@@ -7,7 +7,7 @@ COMMONCMX=socket.cmx file.cmx
 
 all: client server
 
-server:	server.ml file socket
+server:	server.ml $(COMMON)
 	ocamlopt -o server $(LIBS) $(COMMONCMX) server.ml 
 
 client:	client.ml $(COMMON)
