@@ -144,9 +144,10 @@ The server side, handles client requests based on the command string.
 \begin_layout Description
 
 \family typewriter
-merkel 
+merkle 
 \family default
-The Merkel tree, <Karthik>
+The Merkle interface is used to generate a Merkle tree, by a client to verify
+ received files, by the server to generate list of hash values.
 \end_layout
 
 \begin_layout Description
@@ -169,6 +170,10 @@ function
 file 
 \family default
 Contains functions to read and write to files
+\end_layout
+
+\begin_layout Standard
+The application can be extended to multiple 
 \end_layout
 
 \begin_layout Section

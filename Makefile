@@ -9,6 +9,7 @@ COMMONCMX=socket.cmx file.cmx
 MERKLEDEPCMX=file.cmx
 MERKLEINTCMX= file.cmx merkle.cmx
 
+EXECUTABLES=client server socket file merkle merkle_interface
 
 all: client server merkle merkle_interface
 
@@ -33,4 +34,4 @@ socket:
 	ocamlopt -o socket $(LIBS) socket.ml 		
 
 clean:
-	rm *.cmi *.cmx
+	rm *.cmi *.cmx $(EXECUTABLES)

@@ -171,6 +171,10 @@ file
 Contains functions to read and write to files
 \end_layout
 
+\begin_layout Standard
+The application can be extended to multiple 
+\end_layout
+
 \begin_layout Section
 Installation and Usage
 \end_layout
@@ -216,8 +220,8 @@ in the other.
 
 \begin_layout Standard
 The client side displays a menu with numbered options.
- Type option you want, and then enter the name of the file you want to upload
- or download, according to the selected option.
+ Type the option you want, and you will be prompted to enter the name of
+ the file you want to upload or download, according to the selected option.
 \end_layout
 
 \begin_layout Bibliography
