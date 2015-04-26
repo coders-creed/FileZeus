@@ -4,6 +4,8 @@ open Printf
 open Str
 
 (* user modules *)
+include Merkle_interface
+include Merkle
 include File
 include Socket
 
@@ -17,7 +19,7 @@ let print_menu () =
 		"
 	;;
 
-let upload_file sock = 
+let upload_file sock client_index client_file_list= 
 	printf "Enter the name of the file you want to upload\n%!";
 
 	let fname = read_line () in 
@@ -25,7 +27,8 @@ let upload_file sock =
 	let message = "UPLOAD"^";"^fname^";"^content in
 
 	send sock message 0 (String.length message) [];
-	()
+    let new_client_file_list = client_file_list @ [fname] in
+	Merkle.hash_extract (Merkle_interface.agent_build_merkle new_client_file_list client_index)
 ;;	
 
 let list_files sock = 	
@@ -42,7 +45,7 @@ let list_files sock =
 	()
 ;;
 
-let download_file sock = 
+let download_file sock client_root_hash  client_index= 
 	printf "Enter the name of the file you want to download\n%!";
 
 	let fname = read_line () in 
@@ -55,10 +58,20 @@ let download_file sock =
 	File.write_file fname fileContent;
 
 	printf "Got file: %s\n%!" fileContent;
+
+	printf "Verifying download..";
+
+	let file_index = Merkle_interface.find_index fname client_index in
+	let string_hashlist = Socket.readall sock in 
+	let hashlist = Str.split (regexp ";") string_hashlist in 
+	match (Merkle_interface.client_verify client_root_hash hashlist fname file_index ) with
+		"true"-> printf "Download successful!\n";
+		|"false" -> printf "File has been corrupted.\n";
+		|k -> printf "%s\n" k;
 	()
 ;;
 
-let remove_file sock = 
+let remove_file sock client_index client_file_list= 
 	printf "Enter the name of the file you want to delete\n%!";
 
 	let fname = read_line () in 
@@ -66,10 +79,19 @@ let remove_file sock =
 
 	send sock message 0 (String.length message) [];
 
-	()
+    let new_client_file_list = (List.filter (fun x -> x!=fname) client_file_list )in
+	Merkle.hash_extract (Merkle_interface.agent_build_merkle new_client_file_list client_index)
 ;;
 
 let run_client () = 
+  (*get list of files uploaded by client and build merkle tree*)
+  let client_index = "client_index_file.txt" in
+  let client_file_list = Merkle_interface.get_file_list "client_index_file.txt" in
+  let client_root_hash = ref (Merkle.hash_extract (
+      match client_file_list with 
+      [] -> Merkle.Leaf("","") 
+      | _ ->Merkle_interface.agent_build_merkle client_file_list client_index)) in
+
 	while true do
 		let client_sock = socket PF_INET SOCK_STREAM 0 in
 		connect client_sock (ADDR_INET(inet_addr_of_string "127.0.0.1", 12345));
@@ -78,19 +100,13 @@ let run_client () =
 		print_menu ();	
 
 		let input = read_line () in
-		let action_func = 
-			match (int_of_string input) with
-			  1 -> upload_file
-			| 2 -> list_files
-			| 3 -> download_file
-			| 4 -> remove_file
-			| _ -> 
-				printf "Try again%!";
+		match (int_of_string input) with  
+			  1 -> client_root_hash := (upload_file client_sock client_index client_file_list)
+			| 2 -> list_files client_sock
+			| 3 -> download_file client_sock !client_root_hash  client_index
+			| 4 -> client_root_hash := (remove_file client_sock client_index client_file_list)
+			| _ -> printf "Try again%!";
 				exit 0;
-		in
-
-		action_func client_sock;
-
 		printf "Closing connection\n%!";
 		close client_sock;	
 	done;

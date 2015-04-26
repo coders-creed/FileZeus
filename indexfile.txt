@@ -1,4 +1,2 @@
-abc;00
-alp;01
-dim;10
-ert;11
+abc;0
+ert;1

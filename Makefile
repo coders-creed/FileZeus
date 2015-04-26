@@ -1,11 +1,11 @@
 LIBS=str.cmxa unix.cmxa
 
 # labels of dependencies
-COMMON=file socket
+COMMON=file socket merkle merkle_interface
 MERKLEDEP=file
 MERKLEINT= merkle file
 # .cmx files of dependencies
-COMMONCMX=socket.cmx file.cmx
+COMMONCMX=socket.cmx file.cmx merkle.cmx merkle_interface.cmx
 MERKLEDEPCMX=file.cmx
 MERKLEINTCMX= file.cmx merkle.cmx
 

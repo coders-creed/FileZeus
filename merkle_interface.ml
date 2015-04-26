@@ -15,7 +15,26 @@ module Merkle_interface = struct
 	let md5_hasher input_string = Digest.to_hex(Digest.string(input_string))
 	;;
 
-	(* abstracted build merkle *)
+
+	(* get list of file from indexfile *)
+	let get_file_list index_file =
+		let get_list index_file filelist =(
+			let channel = open_in index_file in
+			try
+				while true do
+				    let line = input_line channel in
+				    let pair = Str.split (regexp ";") line in
+				    filelist := !filelist @ [ (List.hd (split (regexp "\"") (List.hd pair))) ]
+				 done
+			 with End_of_file ->
+			  close_in channel)
+		in 
+		let lister = ref [] in 
+		get_list index_file lister;
+		!lister
+	;;
+
+	(* build merkle with md5 as hash function*)
 	let agent_build_merkle filelist index_file= 
 		File.write_file index_file "";
 		let sorted_filelist = (List.sort compare filelist) in 
