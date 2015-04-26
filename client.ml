@@ -32,6 +32,17 @@ let upload_file sock client_index client_file_list=
 	Merkle.hash_extract (Merkle_interface.agent_build_merkle new_client_file_list client_index)
 ;;	
 
+let rec display_file_list l = 
+	match l with
+	| [] -> ()
+	| h::t -> 
+		begin
+			printf "%s\n" h;
+			display_file_list t	
+		end
+;;		
+
+
 (* sends commands to list files stored on 
 server with socket 'sock' *)
 let list_files sock = 	
@@ -40,7 +51,8 @@ let list_files sock =
 
 	let list_str = Socket.readall sock in
 	printf "Received list: %s\n%!" list_str;
-	(* let file_list = split (regexp ";") list_str in *)
+	let file_list = split (regexp ";") list_str in
+	display_file_list file_list;
 	()
 ;;
 

@@ -144,9 +144,10 @@ The server side, handles client requests based on the command string.
 \begin_layout Description
 
 \family typewriter
-merkel 
+merkle 
 \family default
-The Merkel tree, <Karthik>
+The Merkle interface is used to generate a Merkle tree, by a client to verify
+ received files, by the server to generate list of hash values.
 \end_layout
 
 \begin_layout Description
@@ -172,7 +173,11 @@ Contains functions to read and write to files
 \end_layout
 
 \begin_layout Standard
-The application can be extended to multiple 
+The application can be extended to multiple clients by using the Unix 
+\family typewriter
+fork 
+\family default
+function.
 \end_layout
 
 \begin_layout Section
@@ -193,6 +198,23 @@ on one of
 client, server, merkle, merkle_interface 
 \family default
 to build that module.
+\end_layout
+
+\begin_layout Standard
+Create a folder called 
+\family typewriter
+server_files 
+\family default
+in the runtime directory hold all files stored on the server.
+ To name this folder something else, change the 
+\family typewriter
+serverdir 
+\family default
+variable in the 
+\family typewriter
+server 
+\family default
+module accordingly.
 \end_layout
 
 \begin_layout Standard
@@ -222,16 +244,6 @@ in the other.
 The client side displays a menu with numbered options.
  Type the option you want, and you will be prompted to enter the name of
  the file you want to upload or download, according to the selected option.
-\end_layout
-
-\begin_layout Bibliography
-\begin_inset CommandInset bibitem
-LatexCommand bibitem
-key "key-1"
-
-\end_inset
-
-
 \end_layout
 
 \end_body
