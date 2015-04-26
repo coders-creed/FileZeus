@@ -54,7 +54,12 @@ let download_file sock client_root_hash  client_index=
 	send sock message 0 (String.length message) [];
 	printf "Sent request\n%!";
 
-	let fileContent = Socket.readall sock in
+	let content = Socket.readall sock in
+	printf "%s\n" content;
+	let parsed_content = Str.split (regexp ";") content in
+	
+	let fileContent = List.hd parsed_content in 
+	let hashlist = List.tl parsed_content in
 	File.write_file fname fileContent;
 
 	printf "Got file: %s\n%!" fileContent;
@@ -62,9 +67,7 @@ let download_file sock client_root_hash  client_index=
 	printf "Verifying download..";
 
 	let file_index = Merkle_interface.find_index fname client_index in
-	let string_hashlist = Socket.readall sock in 
-	let hashlist = Str.split (regexp ";") string_hashlist in 
-	printf "%s\n" string_hashlist;
+	printf "%s\n" content;
 	match (Merkle_interface.client_verify client_root_hash hashlist fname file_index ) with
 		"true"-> printf "Download successful!\n";
 		|"false" -> printf "File has been corrupted.\n";
@@ -80,7 +83,7 @@ let remove_file sock client_index client_file_list=
 
 	send sock message 0 (String.length message) [];
 
-    let new_client_file_list = (List.filter (fun x -> x!=fname) client_file_list )in
+    let new_client_file_list = (List.filter (fun x -> (String.compare x fname ) != 0) client_file_list )in
 	Merkle.hash_extract (Merkle_interface.agent_build_merkle new_client_file_list client_index)
 ;;
 
