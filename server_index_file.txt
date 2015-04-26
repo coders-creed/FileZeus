@@ -1,8 +1,0 @@
-<<<<<<< HEAD
-server_files/abc;00
-server_files/abc;01
-server_files/alp;10
-server_files/dim;11
-=======
-server_files/abc;
->>>>>>> d099438b547169e3bdf43a02422a56a790c08a5b
