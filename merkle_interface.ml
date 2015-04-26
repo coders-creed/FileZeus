@@ -15,7 +15,26 @@ module Merkle_interface = struct
 	let md5_hasher input_string = Digest.to_hex(Digest.string(input_string))
 	;;
 
-	(* abstracted build merkle *)
+
+	(* get list of file from indexfile *)
+	let get_file_list index_file =
+		let get_list index_file filelist =(
+			let channel = open_in index_file in
+			try
+				while true do
+				    let line = input_line channel in
+				    let pair = Str.split (regexp ";") line in
+				    filelist := !filelist @ [ (List.hd (split (regexp "\"") (List.hd pair))) ]
+				 done
+			 with End_of_file ->
+			  close_in channel)
+		in 
+		let lister = ref [] in 
+		get_list index_file lister;
+		!lister
+	;;
+
+	(* build merkle with md5 as hash function*)
 	let agent_build_merkle filelist index_file= 
 		File.write_file index_file "";
 		let sorted_filelist = (List.sort compare filelist) in 
@@ -64,17 +83,19 @@ module Merkle_interface = struct
 
 	(* generate hashlist on server side *)
 	let rec server_gen filename index server_tree hashlist=
-		match (String.length index) with
-			0 -> hashlist 
-			|_ -> let k = index in
+		let k = index in 
+		match (String.length k) with
+			0 ->hashlist
+			|_ ->(
 				let new_index = String.sub k 1 ((String.length k)-1) in 
 				match k.[0] with 
 				'0' -> ( match server_tree with
-						Merkle.Tree(a,b,c,d) -> let new_hashlist = hashlist @ (Merkle.hash_extract d) in 
+						Merkle.Tree(a,b,c,d) -> let new_hashlist = hashlist @ [(Merkle.hash_extract d)] in 
 												server_gen filename new_index a new_hashlist)
 				|'1' ->  ( match server_tree with
-						Merkle.Tree(a,b,c,d) -> let new_hashlist = hashlist @ (Merkle.hash_extract a) in 
+						Merkle.Tree(a,b,c,d) -> let new_hashlist = hashlist @ [(Merkle.hash_extract a)] in 
 												server_gen filename new_index d new_hashlist)
+				)
 				
 	;;
 
