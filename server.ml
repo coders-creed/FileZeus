@@ -27,7 +27,7 @@ let upload_file fname content server_file_list server_index=
   File.write_file full_fname content; 
   
   let new_server_file_list = server_file_list @ [full_fname] in
-  Merkle_interface.agent_build_merkle server_file_list server_index
+  Merkle_interface.agent_build_merkle new_server_file_list server_index
 ;;
 
 (* handles a client file download *)
@@ -46,6 +46,7 @@ let download_file fname sock server_tree server_index=
   let index = Merkle_interface.find_index full_fname server_index in
   let hashlist = Merkle_interface.server_gen full_fname index server_tree [] in
   let string_hashlist = String.concat ";" hashlist in
+  printf "%s\n" string_hashlist;
   send sock string_hashlist 0 (String.length string_hashlist) [];
 
   ()
@@ -68,7 +69,7 @@ let remove_file fname server_file_list server_index=
   let full_fname = full_name fname in
   Sys.remove (full_name fname);
   let new_server_file_list = (List.filter (fun x -> x!=full_fname) server_file_list ) in
-  Merkle_interface.agent_build_merkle server_file_list server_index
+  Merkle_interface.agent_build_merkle new_server_file_list server_index
 
 ;;
 

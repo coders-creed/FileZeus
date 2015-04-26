@@ -64,6 +64,7 @@ let download_file sock client_root_hash  client_index=
 	let file_index = Merkle_interface.find_index fname client_index in
 	let string_hashlist = Socket.readall sock in 
 	let hashlist = Str.split (regexp ";") string_hashlist in 
+	printf "%s\n" string_hashlist;
 	match (Merkle_interface.client_verify client_root_hash hashlist fname file_index ) with
 		"true"-> printf "Download successful!\n";
 		|"false" -> printf "File has been corrupted.\n";
