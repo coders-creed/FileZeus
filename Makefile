@@ -3,11 +3,14 @@ LIBS=str.cmxa unix.cmxa
 # labels of dependencies
 COMMON=file socket
 MERKLEDEP=file
+MERKLEINT= merkle file
 # .cmx files of dependencies
 COMMONCMX=socket.cmx file.cmx
 MERKLEDEPCMX=file.cmx
+MERKLEINTCMX= file.cmx merkle.cmx
 
-all: client server merkle
+
+all: client server merkle merkle_interface
 
 server:	server.ml $(COMMON)
 	ocamlopt -o server $(LIBS) $(COMMONCMX) server.ml 
@@ -17,7 +20,10 @@ client:	client.ml $(COMMON)
 
 
 merkle:	merkle.ml $(MERKLEDEP)
-	ocamlopt -o client $(LIBS) $(MERKLEDEPCMX) merkle.ml 
+	ocamlopt -o merkle $(LIBS) $(MERKLEDEPCMX) merkle.ml 
+
+merkle_interface:	merkle_interface.ml $(MERKLEINT)
+	ocamlopt -o merkle_interface $(LIBS) $(MERKLEINTCMX) merkle_interface.ml 
 
 
 file: 
