@@ -9,17 +9,19 @@ include Merkle
 include File
 include Socket
 
+(* directory in which user files are stored *)
 let serverdir = "server_files/"
+
+(* get the full name of a file on the server
+by appending the directory name to the filename *)
+let full_name filename = serverdir^filename
+;;
+
 
 (* handle a client file upload *)
 (* fname: name of the file  *)
 (* fileContent: an ASCII string with the contents 
 of the file *)
-
-let full_name filename = serverdir^filename
-;;
-
-
 let upload_file fname content server_file_list server_index=
   printf "Uploading file\n%!";
 
@@ -33,7 +35,6 @@ let upload_file fname content server_file_list server_index=
 (* handles a client file download *)
 (* fname: name of the file requested *)
 (* sock: socket to which file is sent *)
-
 let download_file fname sock server_tree server_index= 
   printf "Downloading: %s\n%!" fname;
 
@@ -52,6 +53,8 @@ let download_file fname sock server_tree server_index=
   ()
 ;;
 
+(* handles a client request to list files *)
+(* sock: socket to which file list is sent *)
 let list_files sock = 
   printf "Listing files\n%!";
 
@@ -64,6 +67,8 @@ let list_files sock =
   ()
 ;;
 
+(* handles a client request to remove a file
+fname: name of file to be removed *)
 let remove_file fname server_file_list server_index= 
   printf "Removing file\n%!";
   let full_fname = full_name fname in
@@ -73,6 +78,7 @@ let remove_file fname server_file_list server_index=
 
 ;;
 
+(* main server function *)
 let run_server () = 
   (*get list of files uploaded by client and build merkle tree*)
   let server_index = "server_index_file.txt" in
