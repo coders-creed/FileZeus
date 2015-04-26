@@ -47,8 +47,7 @@ let download_file fname sock server_tree server_index=
   let hashlist = Merkle_interface.server_gen full_fname index server_tree [] in
   let string_hashlist = String.concat ";" hashlist in
   let concat_string = content^";"^string_hashlist in
-  printf "%s\n" concat_string;
-  send sock content 0 (String.length concat_string) [];
+  send sock concat_string 0 (String.length concat_string) [];
 
   ()
 ;;
