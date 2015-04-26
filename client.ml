@@ -16,7 +16,8 @@ let print_menu () =
 			(4) Remove a file
 		"
 	;;
-
+(* sends commands to download a file stored on 
+server with socket 'sock' *)
 let upload_file sock = 
 	printf "Enter the name of the file you want to upload\n%!";
 
@@ -28,13 +29,11 @@ let upload_file sock =
 	()
 ;;	
 
+(* sends commands to list files stored on 
+server with socket 'sock' *)
 let list_files sock = 	
 	let message = "LIST" in
 	send sock message 0 (String.length message) [];
-
-	(* wait for the server to send back the list *)
-	(* let recv_list = [sock] in 
-	Unix.select recv_list, [], [], 5.0; *)
 
 	let list_str = Socket.readall sock in
 	printf "Received list: %s\n%!" list_str;
@@ -42,6 +41,8 @@ let list_files sock =
 	()
 ;;
 
+(* sends commands to download file stored on 
+server with socket 'sock' *)
 let download_file sock = 
 	printf "Enter the name of the file you want to download\n%!";
 
@@ -58,6 +59,8 @@ let download_file sock =
 	()
 ;;
 
+(* sends command to remove a file stored on 
+server with socket 'sock' *)
 let remove_file sock = 
 	printf "Enter the name of the file you want to delete\n%!";
 
@@ -69,6 +72,9 @@ let remove_file sock =
 	()
 ;;
 
+(* main client function
+connects to server (localhost:12345) and sends commands
+based on user input *)
 let run_client () = 
 	while true do
 		let client_sock = socket PF_INET SOCK_STREAM 0 in

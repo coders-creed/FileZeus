@@ -1,6 +1,8 @@
 open Printf
 
 module File = struct
+	(* returns a string with the full contents of 
+	file with name fname *)
 	let read_file fname =
 	  let channel = open_in fname in
 	  let len = in_channel_length channel in
@@ -11,6 +13,8 @@ module File = struct
 	  (str)
 	;;
 
+	(* writes the string 'content' to a new file with 
+	name 'fname' *)
 	let write_file fname content =
 	  let channel = open_out fname in
 	  fprintf channel "%s" content;
