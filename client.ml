@@ -9,6 +9,8 @@ include Merkle
 include File
 include Socket
 
+
+
 (* displays the menu *)
 let print_menu () = 
 	printf "
@@ -28,8 +30,8 @@ let upload_file sock client_index client_file_list=
 	let message = "UPLOAD"^";"^fname^";"^content in
 
 	send sock message 0 (String.length message) [];
-    let new_client_file_list = client_file_list @ [fname] in
-	let new_hash = Merkle.hash_extract (Merkle_interface.agent_build_merkle new_client_file_list client_index) in 
+    client_file_list := !client_file_list @ [fname];
+	let new_hash = Merkle.hash_extract (Merkle_interface.agent_build_merkle !client_file_list client_index) in 
 	File.write_file "client_root_hash.txt" new_hash;
 	new_hash
 ;;	
@@ -82,7 +84,7 @@ let download_file sock client_root_hash  client_index=
 	printf "Verifying download..";
 
 	let file_index = Merkle_interface.find_index fname client_index in
-	let verified = Merkle_interface.client_verify client_root_hash hashlist fname file_index in
+	let verified = Merkle_interface.client_verify !client_root_hash hashlist fname file_index in
 	match verified with
 		|"true"-> printf "Download successful! \n";
 		|"false" -> printf "File has been corrupted.\n" ;
@@ -100,8 +102,8 @@ let remove_file sock client_index client_file_list=
 
 	send sock message 0 (String.length message) [];
 
-    let new_client_file_list = (List.filter (fun x -> (String.compare x fname ) != 0) client_file_list )in
-	let new_hash = Merkle.hash_extract (Merkle_interface.agent_build_merkle new_client_file_list client_index) in 
+    client_file_list := (List.filter (fun x -> (String.compare x fname ) != 0) !client_file_list );
+	let new_hash = Merkle.hash_extract (Merkle_interface.agent_build_merkle !client_file_list client_index) in 
 	File.write_file "client_root_hash.txt" new_hash;
 	new_hash
 ;;
@@ -112,13 +114,13 @@ based on user input *)
 let run_client () = 
   (*get list of files uploaded by client and build merkle tree*)
   let client_index = "client_index_file.txt" in
-  let client_file_list = Merkle_interface.get_file_list "client_index_file.txt" in
+  let client_file_list = ref(Merkle_interface.get_file_list "client_index_file.txt") in
   let client_root_hash = ref (let read_hash = File.read_file "client_root_hash.txt" in 
 		match read_hash with 
 		"" ->(let ren = Merkle.hash_extract (
-      		match client_file_list with 
+      		match !client_file_list with 
       		[] -> Merkle.Leaf("","") 
-      		| _ ->Merkle_interface.agent_build_merkle client_file_list client_index) in 
+      		| _ ->Merkle_interface.agent_build_merkle !client_file_list client_index) in 
 			File.write_file "client_root_hash.txt" ren;
 		ren)
 		|_ -> read_hash
@@ -135,7 +137,7 @@ let run_client () =
 		match (int_of_string input) with  
 			  1 -> client_root_hash := (upload_file client_sock client_index client_file_list)
 			| 2 -> list_files client_sock
-			| 3 -> download_file client_sock !client_root_hash  client_index
+			| 3 -> download_file client_sock client_root_hash  client_index
 			| 4 -> client_root_hash := (remove_file client_sock client_index client_file_list)
 			| _ -> printf "Try again%!";
 				exit 0;

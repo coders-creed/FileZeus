@@ -28,8 +28,8 @@ let upload_file fname content server_file_list server_index=
   let full_fname = full_name fname in
   File.write_file full_fname content; 
   
-  let new_server_file_list = server_file_list @ [full_fname] in
-  Merkle_interface.agent_build_merkle new_server_file_list server_index
+  server_file_list := !server_file_list @ [full_fname];
+  Merkle_interface.agent_build_merkle !server_file_list server_index
 ;;
 
 (* handles a client file download *)
@@ -73,8 +73,8 @@ let remove_file fname server_file_list server_index=
   printf "Removing file\n%!";
   let full_fname = full_name fname in
   Sys.remove (full_name fname);
-  let new_server_file_list = (List.filter (fun x -> (String.compare x full_fname) != 0) server_file_list ) in
-  Merkle_interface.agent_build_merkle new_server_file_list server_index
+  server_file_list := (List.filter (fun x -> (String.compare x full_fname) != 0) !server_file_list );
+  Merkle_interface.agent_build_merkle !server_file_list server_index
 
 ;;
 
@@ -82,11 +82,11 @@ let remove_file fname server_file_list server_index=
 let run_server () = 
   (*get list of files uploaded by client and build merkle tree*)
   let server_index = "server_index_file.txt" in
-  let server_file_list = Merkle_interface.get_file_list "server_index_file.txt" in
+  let server_file_list = ref(Merkle_interface.get_file_list "server_index_file.txt") in
   let server_tree = ref (
-      match server_file_list with 
+      match !server_file_list with 
       [] -> Merkle.Leaf("","") 
-      | _ ->Merkle_interface.agent_build_merkle server_file_list server_index) in
+      | _ ->Merkle_interface.agent_build_merkle !server_file_list server_index) in
 
 (* create a socket for listening *)
   let sock = socket PF_INET SOCK_STREAM 0 in

@@ -37,7 +37,7 @@ module Merkle_interface = struct
 	(* build merkle with md5 as hash function*)
 	let agent_build_merkle filelist index_file= 
 		File.write_file index_file "";
-		let sorted_filelist = (List.sort compare filelist) in 
+		let sorted_filelist = (List.sort compare filelist) in
 		Merkle.build_merkle sorted_filelist md5_hasher "" "" index_file
 	;;
 
@@ -69,16 +69,18 @@ module Merkle_interface = struct
 			match hashlist with
 			[k] -> (match index.[0] with 
 				'0' -> (md5_hasher (file_hash^k)) 
-				|'1' ->  (md5_hasher (file_hash^k))) 
+				|'1' ->  (md5_hasher(k^(file_hash))))
 			|a::b -> let new_index = String.sub index_string 1 ((String.length index_string)-1) in 
 				(match index.[0] with 
 				'0' -> (md5_hasher ((compute_hash b new_index file_hash)^a)) 
 				|'1' ->  (md5_hasher (a^(compute_hash b new_index file_hash))))
-			)
+		)
 		in
 		match index with
 		""->"Verification not possible"
-		|k -> if root_hash_val = (compute_hash hashlist k file_hash) then "true" else "false"
+		|k -> let computed_hash = (compute_hash hashlist k file_hash) in 
+		if root_hash_val = computed_hash 
+		 then "true" else "false"
 	;;
 
 	(* generate hashlist on server side *)
